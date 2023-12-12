@@ -1,5 +1,5 @@
 """
-GPT-3 Implementation as a DocumentCloud Add-on
+GPT-3.5 Turbo Implementation as a DocumentCloud Add-on
 """
 
 import csv
@@ -10,6 +10,12 @@ import time
 import tiktoken
 from openai import OpenAI
 from documentcloud.addon import AddOn
+
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_random_exponential,
+)  # for exponential backoff
 
 client = OpenAI(api_key=os.environ["TOKEN"])
 
@@ -75,7 +81,19 @@ class GPTPlay(AddOn):
             f"It would cost {cost} AI credits to run your prompt on the set."
         )
         sys.exit(0)
-        
+    
+    @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+    def request_chat_completion(self, message, model):
+        return client.chat.completions.create(
+            messages=message,
+            model=model,
+            temperature=0.2,
+            max_tokens=1000,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+
     def main(self):
         encoding = tiktoken.get_encoding("cl100k_base")
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
@@ -122,9 +140,9 @@ class GPTPlay(AddOn):
                             {"role": "user", "content": submission}
                         ]
 
-                    response = client.chat.completions.create(messages=message, model=gpt_model, temperature=0.2, max_tokens=1000, top_p=1, frequency_penalty=0, presence_penalty=0)
+                    response = self.request_chat_completion(message, gpt_model)
                     result = response.choices[0].message.content
-                    time.sleep(8) # A sleep to avoid getting rate limited by token limit by OpenAI
+
                     writer.writerow([document.title, document.canonical_url, result])
                     if self.data.get("value"):
                         if (document.user_id == self.user_id):

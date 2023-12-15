@@ -4,8 +4,8 @@ description: |
 
   Give this a full prompt that you would pass into GPT-3.5 Turbo and it will run it
   against your selected documents, one at a time. 
-
-instructions: |
+instructions: | 
+  Instructions:
   The Add-On looks at the first 54,000 characters (~30 pages) in each document, if available. 
   Of course, if the document is only 1 page, it will only look at that page.
   

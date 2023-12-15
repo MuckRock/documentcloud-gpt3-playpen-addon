@@ -5,6 +5,7 @@ description: |
   Give this a full prompt that you would pass into GPT-3.5 Turbo and it will run it
   against your selected documents, one at a time. 
 
+instructions: |
   The Add-On looks at the first 54,000 characters (~30 pages) in each document, if available. 
   Of course, if the document is only 1 page, it will only look at that page.
   
@@ -18,8 +19,7 @@ description: |
   so that it costs less to run the Add-On. You can set the limit between 1,000 - 54,000 characters.
   
   We'd love your feedback and ideas — drop a note to info at documentcloud dot org or join
-  us in the News Nerdery Slack in the #proj-documentcloud channel.
-instructions: ''
+  us in the News Nerdery Slack in the #proj-documentcloud channel.'
 type: object
 documents:
   - selected

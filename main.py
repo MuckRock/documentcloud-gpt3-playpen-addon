@@ -6,9 +6,9 @@ import csv
 import math
 import os
 import sys
-import time
 import tiktoken
 from openai import OpenAI
+from documentcloud.exceptions import APIError
 from documentcloud.addon import AddOn
 
 from tenacity import (
@@ -36,8 +36,12 @@ ESCAPE_TABLE = str.maketrans(
     }
 )
 
+
 class GPTPlay(AddOn):
+    """DocumentCloud Add-On that runs the GPT-3.5 Turbo Model on a set of documents with a prompt"""
+
     def calculate_cost(self, documents, limiter=None):
+        """ Given a set of documents, counts the number of pages and returns a cost"""
         total_num_pages = 0
         for doc in documents:
             full_text = doc.full_text
@@ -50,7 +54,7 @@ class GPTPlay(AddOn):
             total_num_pages += num_pages
         cost = total_num_pages
         return cost
-        
+
     def validate(self):
         """Validate that we can run the analysis"""
 
@@ -60,19 +64,23 @@ class GPTPlay(AddOn):
                 "select them and run again."
             )
             return False
-        elif not self.org_id:
+        if not self.org_id:
             self.set_message("No organization to charge.")
             return False
-        else:
-            character_limit = self.data.get("limiter", DEFAULT_CHAR_LIMIT)
-            ai_credit_cost = self.calculate_cost(self.get_documents(), limiter=character_limit)
+        character_limit = self.data.get("limiter", DEFAULT_CHAR_LIMIT)
+        ai_credit_cost = self.calculate_cost(
+            self.get_documents(), limiter=character_limit
+        )
         try:
             self.charge_credits(ai_credit_cost)
         except ValueError:
             return False
+        except APIError:
+            return False
         return True
 
     def dry_run(self, documents):
+        """ Runs the cost calculation, but doesn't run the prompts"""
         character_limit = self.data.get("limiter", DEFAULT_CHAR_LIMIT)
         cost = self.calculate_cost(documents, limiter=character_limit)
 
@@ -81,9 +89,10 @@ class GPTPlay(AddOn):
             f"It would cost {cost} AI credits to run your prompt on the set."
         )
         sys.exit(0)
-    
+
     @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
     def request_chat_completion(self, message, model):
+        """ Runs the GPT prompt using the chat completions API"""
         return client.chat.completions.create(
             messages=message,
             model=model,
@@ -91,23 +100,23 @@ class GPTPlay(AddOn):
             max_tokens=1000,
             top_p=1,
             frequency_penalty=0,
-            presence_penalty=0
+            presence_penalty=0,
         )
 
     def main(self):
+        """ Runs the prompt on each document if the user has enough credits"""
         encoding = tiktoken.get_encoding("cl100k_base")
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
-        if self.data.get("limiter"):
-            character_limit = self.data.get("limiter")
-        # If dry_run is selected, it will calculate the cost of translation. 
+        # If dry_run is selected, it will calculate the cost of translation.
         if self.data.get("dry_run"):
             self.dry_run(self.get_documents())
-            
+
         if not self.validate():
             # if not validated, return immediately
-            return
-        with open("compared_docs.csv", "w+") as file_:
+            self.set_message("You do not have sufficient AI credits to run this Add-On")
+            sys.exit(0)
+        with open("compared_docs.csv", "w+", encoding="utf-8") as file_:
             writer = csv.writer(file_)
             writer.writerow(["document_title", "url", "output"])
             user_input = self.data["prompt"].translate(ESCAPE_TABLE)
@@ -124,28 +133,26 @@ class GPTPlay(AddOn):
                         f"Document Text:\n=========\n{full_text}\n\n\n"
                         "Answer:\n==========\n"
                     )
-                    message=[
-                        {"role": "user", "content": submission}
-                    ]
-                    
+                    message = [{"role": "user", "content": submission}]
+
                     # If the token count is > 15k tokens, we need to truncate the text further
                     if len(encoding.encode(full_text)) > 15000:
-                        full_text = document.full_text.translate(ESCAPE_TABLE)[:SECONDARY_CHAR_LIMIT]
+                        full_text = document.full_text.translate(ESCAPE_TABLE)[
+                            :SECONDARY_CHAR_LIMIT
+                        ]
                         submission = (
                             f"Assignment:\n=============\n{user_input}\n\n"
                             f"Document Text:\n=========\n{full_text}\n\n\n"
                             "Answer:\n==========\n"
                         )
-                        message=[
-                            {"role": "user", "content": submission}
-                        ]
+                        message = [{"role": "user", "content": submission}]
 
                     response = self.request_chat_completion(message, gpt_model)
                     result = response.choices[0].message.content
 
                     writer.writerow([document.title, document.canonical_url, result])
                     if self.data.get("value"):
-                        if (document.user_id == self.user_id):
+                        if document.user_id == self.user_id:
                             try:  # should add a proper permission check here.
                                 document.data[self.data["value"]] = [str(result)]
                                 document.save()

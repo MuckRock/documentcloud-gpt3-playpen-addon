@@ -63,10 +63,10 @@ class GPTPlay(AddOn):
                 "It looks like no documents were selected. Search for some or "
                 "select them and run again."
             )
-            return False
+            sys.exit(0)
         if not self.org_id:
             self.set_message("No organization to charge.")
-            return False
+            sys.exit(0)
         character_limit = self.data.get("limiter", DEFAULT_CHAR_LIMIT)
         ai_credit_cost = self.calculate_cost(
             self.get_documents(), limiter=character_limit

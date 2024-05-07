@@ -142,7 +142,7 @@ class GPTPlay(AddOn):
                         ]
                         submission = (
                             f"Assignment:\n=============\n{user_input}\n\n"
-                            f"Document Text:\n=========\n{full_text}\n\n\n"
+                            f'Document Text:\n=========\n{full_text}\n\n\n'
                             "Answer:\n==========\n"
                         )
                         message = [{"role": "user", "content": submission}]

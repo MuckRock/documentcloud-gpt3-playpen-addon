@@ -91,12 +91,12 @@ class GPTPlay(AddOn):
         sys.exit(0)
 
     @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-    def request_chat_completion(self, message, model):
+    def request_chat_completion(self, message, model, temperature):
         """ Runs the GPT prompt using the chat completions API"""
         return client.chat.completions.create(
             messages=message,
             model=model,
-            temperature=0.2,
+            temperature=temperature,
             max_tokens=1000,
             top_p=1,
             frequency_penalty=0,
@@ -107,7 +107,7 @@ class GPTPlay(AddOn):
         """ Runs the prompt on each document if the user has enough credits"""
         encoding = tiktoken.get_encoding("cl100k_base")
         encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-
+        temperature = int(self.data.get("temperature"))
         # If dry_run is selected, it will calculate the cost of translation.
         if self.data.get("dry_run"):
             self.dry_run(self.get_documents())
@@ -147,7 +147,7 @@ class GPTPlay(AddOn):
                         )
                         message = [{"role": "user", "content": submission}]
 
-                    response = self.request_chat_completion(message, gpt_model)
+                    response = self.request_chat_completion(message, gpt_model, temperature)
                     result = response.choices[0].message.content
 
                     writer.writerow([document.title, document.canonical_url, result])

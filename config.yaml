@@ -54,6 +54,7 @@ properties:
       - "0.8"
       - "0.9"
       - "1"
+    default: "0"
     description: Temperature closer to 0 for exact answers, closer to 1 for creative answers. 
 required:
   - prompt

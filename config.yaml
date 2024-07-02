@@ -41,10 +41,10 @@ properties:
     minimum: 1000
     maximum: 56000
   temperature: ChatGPT temperature
-  type: number
-  minimum: 0
-  maximum: 1
-  description: Temperature closer to 0 for exact answers, closer to 1 for creative answers. 
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Temperature closer to 0 for exact answers, closer to 1 for creative answers. 
 required:
   - prompt
 categories:

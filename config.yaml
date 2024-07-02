@@ -43,18 +43,18 @@ properties:
   temperature: ChatGPT temperature
     type: string
     enum: 
-      - "0"
-      - "0.1"
-      - "0.2"
-      - "0.3"
-      - "0.4"
-      - "0.5"
-      - "0.6"
-      - "0.7"
-      - "0.8"
-      - "0.9"
-      - "1"
-    default: "0"
+      - 0
+      - 0.1
+      - 0.2
+      - 0.3
+      - 0.4
+      - 0.5
+      - 0.6
+      - 0.7
+      - 0.8
+      - 0.9
+      - 1
+    default: 0
     description: Temperature closer to 0 for exact answers, closer to 1 for creative answers. 
 required:
   - prompt

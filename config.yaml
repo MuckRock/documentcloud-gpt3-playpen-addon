@@ -40,8 +40,9 @@ properties:
     type: integer
     minimum: 1000
     maximum: 56000
-  temperature: ChatGPT temperature
-    type: string
+  temperature: 
+    title: ChatGPT temperature
+    type: number
     enum: 
       - 0
       - 0.1

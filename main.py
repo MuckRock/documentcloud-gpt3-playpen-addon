@@ -119,7 +119,7 @@ class GPTPlay(AddOn):
             writer = csv.writer(file_)
             writer.writerow(["document_title", "url", "output"])
             user_input = self.data["prompt"].translate(ESCAPE_TABLE)
-            gpt_model = "gpt-5"
+            gpt_model = "gpt-4o"
             for document in self.get_documents():
                 self.set_message(f"Analyzing document {document.title}.")
                 try:

@@ -1,5 +1,5 @@
 """
-GPT-3.5 Turbo Implementation as a DocumentCloud Add-on
+GPT-4o Implementation as a DocumentCloud Add-on
 """
 
 import csv
@@ -20,9 +20,9 @@ from tenacity import (
 client = OpenAI(api_key=os.environ["TOKEN"])
 
 AVERAGE_CHARS_PER_PAGE = 1750
-MAX_PAGES = 30
-DEFAULT_CHAR_LIMIT = 54000
-SECONDARY_CHAR_LIMIT = 44000
+MAX_PAGES = 260
+DEFAULT_CHAR_LIMIT = 460800
+SECONDARY_CHAR_LIMIT = 409600
 
 ESCAPE_TABLE = str.maketrans(
     {
@@ -134,8 +134,8 @@ class GPTPlay(AddOn):
                     )
                     message = [{"role": "user", "content": submission}]
 
-                    # If the token count is > 15k tokens, we need to truncate the text further
-                    if len(encoding.encode(full_text)) > 15000:
+                    # If the token count is > 127k tokens, we need to truncate the text further
+                    if len(encoding.encode(full_text)) > 127000:
                         full_text = document.full_text.translate(ESCAPE_TABLE)[
                             :SECONDARY_CHAR_LIMIT
                         ]

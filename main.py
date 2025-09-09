@@ -106,7 +106,7 @@ class GPTPlay(AddOn):
     def main(self):
         """ Runs the prompt on each document if the user has enough credits"""
         encoding = tiktoken.get_encoding("cl100k_base")
-        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+        encoding = tiktoken.encoding_for_model("gpt-5")
         temperature = int(self.data.get("temperature"))
         # If dry_run is selected, it will calculate the cost of translation.
         if self.data.get("dry_run"):
@@ -120,7 +120,7 @@ class GPTPlay(AddOn):
             writer = csv.writer(file_)
             writer.writerow(["document_title", "url", "output"])
             user_input = self.data["prompt"].translate(ESCAPE_TABLE)
-            gpt_model = "gpt-3.5-turbo-1106"
+            gpt_model = "gpt-5"
             for document in self.get_documents():
                 self.set_message(f"Analyzing document {document.title}.")
                 try:

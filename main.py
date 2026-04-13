@@ -105,6 +105,7 @@ class GPTPlay(AddOn):
 
     def main(self):
         """ Runs the prompt on each document if the user has enough credits"""
+        self.client.session.headers.update({'User-Agent': 'GPT Add-On'})
         encoding = tiktoken.get_encoding("o200k_base")
         temperature = int(self.data.get("temperature"))
         # If dry_run is selected, it will calculate the cost of translation.

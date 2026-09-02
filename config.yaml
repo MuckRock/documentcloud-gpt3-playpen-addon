@@ -4,6 +4,9 @@ description: |
 
   Give this a full prompt that you would pass into GPT 4o and it will run it
   against your selected documents, one at a time. 
+
+  This Add-On uses AI. It only runs when you tell it to. It can run on any public document 
+  or any private document that you have access to. It cannot access documents you don't have access to. 
 instructions: |
   Instructions:
   The Add-On looks at the first 128,000 tokens/460,000 characters/~250 pages in each document, if available. 

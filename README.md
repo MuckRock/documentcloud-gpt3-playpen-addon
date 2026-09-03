@@ -3,7 +3,7 @@
 
 [Please see the Add-On documentation](https://github.com/MuckRock/documentcloud-hello-world-addon/wiki/)
 
-# DocumentCloud GPT-3.5 Turbo Add-On
+# DocumentCloud GPT 4o Add-On
  
 This add-on analyzes up to the first 30 pages of a doocument. You may set a limiter to analyze less. 
 
